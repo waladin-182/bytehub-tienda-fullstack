@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ByteHub Tecnología — Computadores, Portátiles y Accesorios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151b;
+    --surface:#1a1f29;
+    --surface-2:#212836;
+    --line: #2b3242;
+    --amber:#e8a33d;
+    --amber-dim:#8a6528;
+    --cyan:#4fd1c5;
+    --text:#edeff3;
+    --muted:#8b95a7;
+    --price:#7fd99a;
+    --danger:#e8544d;
+    --radius:10px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.5;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(79,209,197,0.08), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(232,163,61,0.07), transparent 45%);
+    background-attachment: fixed;
+  }
+  img{max-width:100%; display:block;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:inherit; cursor:pointer;}
+  ::selection{background:var(--amber); color:#1a1200;}
+
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--cyan); outline-offset:2px;
+  }
+
+  .wrap{max-width:1240px; margin:0 auto; padding:0 24px;}
+
+  .apibar{
+    background:#3a2a10; color:#f3c98a; font-family:var(--font-mono); font-size:12px;
+    text-align:center; padding:7px 12px; display:none;
+  }
+  .apibar.show{display:block;}
+
+  .topbar{
+    background:#0d0f14; color:var(--muted); font-family:var(--font-mono);
+    font-size:12.5px; letter-spacing:.02em; border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex; justify-content:space-between; align-items:center; padding:7px 24px; flex-wrap:wrap; gap:6px;}
+  .topbar span{color:var(--cyan);}
+
+  header.main{
+    position:sticky; top:0; z-index:50;
+    background:rgba(18,21,27,0.92); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-row{display:flex; align-items:center; gap:28px; padding:16px 24px;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:22px; flex-shrink:0;}
+  .logo .chip{
+    width:34px; height:34px; border-radius:8px;
+    background:linear-gradient(135deg, var(--amber), var(--cyan));
+    display:flex; align-items:center; justify-content:center;
+    color:#0d0f14; font-family:var(--font-mono); font-weight:600; font-size:14px;
+  }
+  .logo small{display:block; font-family:var(--font-mono); font-weight:400; font-size:10.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase;}
+
+  .search-box{
+    flex:1; display:flex; align-items:center; background:var(--surface);
+    border:1px solid var(--line); border-radius:8px; padding:0 6px 0 14px; max-width:520px;
+  }
+  .search-box input{
+    flex:1; background:none; border:none; color:var(--text); font-family:var(--font-body);
+    padding:11px 8px; font-size:14px;
+  }
+  .search-box input::placeholder{color:var(--muted);}
+  .search-box button{
+    background:var(--amber); color:#1a1200; border:none; border-radius:6px;
+    padding:9px 14px; font-weight:600; font-size:13px;
+  }
+
+  .header-actions{display:flex; align-items:center; gap:8px; flex-shrink:0;}
+  .icon-btn{
+    display:flex; align-items:center; gap:8px; background:none; border:1px solid transparent;
+    color:var(--text); padding:8px 12px; border-radius:8px; font-size:13px; position:relative;
+  }
+  .icon-btn:hover{background:var(--surface); border-color:var(--line);}
+  .icon-btn svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.8;}
+  .badge-count{
+    position:absolute; top:2px; right:2px; background:var(--danger); color:#fff;
+    font-family:var(--font-mono); font-size:10px; min-width:16px; height:16px; border-radius:8px;
+    display:flex; align-items:center; justify-content:center; padding:0 3px;
+  }
+  .icon-btn .label{display:none;}
+  @media(min-width:860px){ .icon-btn .label{display:inline;} }
+
+  nav.categories{ border-top:1px solid var(--line); overflow-x:auto; scrollbar-width:none; }
+  nav.categories::-webkit-scrollbar{display:none;}
+  nav.categories .wrap{display:flex; gap:4px; padding:0 24px;}
+  nav.categories button{
+    background:none; border:none; color:var(--muted); font-size:13.5px; font-weight:500;
+    padding:12px 14px; white-space:nowrap; border-bottom:2px solid transparent; transition:.15s;
+  }
+  nav.categories button:hover{color:var(--text);}
+  nav.categories button.active{color:var(--amber); border-bottom-color:var(--amber);}
+
+  .hero{padding:56px 24px 40px; position:relative; overflow:hidden;}
+  .hero::before{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(79,209,197,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,209,197,0.05) 1px, transparent 1px);
+    background-size:34px 34px;
+    mask-image: radial-gradient(ellipse 60% 100% at 50% 0%, black, transparent);
+    pointer-events:none;
+  }
+  .hero-inner{max-width:1240px; margin:0 auto; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; align-items:center; position:relative;}
+  @media(max-width:860px){ .hero-inner{grid-template-columns:1fr;} }
+  .eyebrow{
+    font-family:var(--font-mono); color:var(--cyan); font-size:12.5px; letter-spacing:.12em;
+    text-transform:uppercase; display:flex; align-items:center; gap:8px; margin-bottom:16px;
+  }
+  .eyebrow::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 10px var(--cyan);}
+  .hero h1{font-family:var(--font-display); font-size:clamp(30px,4.6vw,50px); line-height:1.08; font-weight:700; margin-bottom:18px;}
+  .hero h1 em{font-style:normal; color:var(--amber);}
+  .hero p{color:var(--muted); font-size:16px; max-width:480px; margin-bottom:26px;}
+  .hero-ctas{display:flex; gap:12px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; border-radius:8px; font-weight:600; font-size:14.5px;
+    padding:13px 22px; border:1px solid transparent; transition:.15s;
+  }
+  .btn-primary{background:var(--amber); color:#1a1200;}
+  .btn-primary:hover{background:#f3b458;}
+  .btn-primary:disabled{opacity:.55; cursor:not-allowed;}
+  .btn-ghost{border-color:var(--line); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+
+  .hero-panel{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px;
+    font-family:var(--font-mono); position:relative;
+  }
+  .hero-panel .ticket-head{display:flex; justify-content:space-between; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:14px;}
+  .spec-line{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px dashed var(--line); font-size:13px;}
+  .spec-line span:first-child{color:var(--muted);}
+  .hero-panel .price-tag{margin-top:16px; display:flex; align-items:baseline; gap:10px;}
+  .hero-panel .price-tag .now{font-family:var(--font-display); font-size:26px; color:var(--price); font-weight:700;}
+  .hero-panel .price-tag .old{text-decoration:line-through; color:var(--muted); font-size:14px;}
+  .hero-panel .discount-flag{
+    position:absolute; top:-10px; right:18px; background:var(--danger); color:#fff;
+    font-family:var(--font-mono); font-size:11.5px; padding:5px 10px; border-radius:6px; transform:rotate(2deg);
+  }
+
+  .section{padding:44px 24px;}
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  .section-head h2{font-family:var(--font-display); font-size:24px; font-weight:700;}
+  .section-head .tag{font-family:var(--font-mono); font-size:11.5px; color:var(--cyan); text-transform:uppercase; letter-spacing:.1em; display:block; margin-bottom:4px;}
+  .section-head p{color:var(--muted); font-size:13.5px; margin-top:4px;}
+
+  .cat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px;}
+  .cat-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px 16px;
+    display:flex; flex-direction:column; gap:10px; transition:.15s;
+  }
+  .cat-card:hover{border-color:var(--amber); transform:translateY(-2px);}
+  .cat-card svg{width:26px; height:26px; stroke:var(--amber); fill:none; stroke-width:1.6;}
+  .cat-card b{font-family:var(--font-display); font-size:14.5px; font-weight:600;}
+  .cat-card span{color:var(--muted); font-size:12px;}
+
+  .chip-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+  .chip{
+    background:var(--surface); border:1px solid var(--line); color:var(--muted); font-size:13px;
+    padding:8px 14px; border-radius:20px; font-weight:500;
+  }
+  .chip.active{background:var(--amber); border-color:var(--amber); color:#1a1200;}
+
+  .prod-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px;}
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    display:flex; flex-direction:column; transition:.15s;
+  }
+  .card:hover{border-color:var(--cyan); box-shadow:0 8px 24px rgba(0,0,0,0.35);}
+  .card-art{
+    aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; position:relative;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.06), transparent 55%),
+      var(--surface-2);
+    border-bottom:1px solid var(--line);
+  }
+  .card-art svg{width:52%; height:52%; stroke:var(--muted); fill:none; stroke-width:1.2; opacity:.85;}
+  .card:hover .card-art svg{stroke:var(--cyan);}
+  .flag{
+    position:absolute; top:10px; left:10px; font-family:var(--font-mono); font-size:11px;
+    padding:4px 9px; border-radius:5px; font-weight:600;
+  }
+  .flag.oferta{background:var(--danger); color:#fff;}
+  .flag.nuevo{background:var(--cyan); color:#0d0f14;}
+  .card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:8px; flex:1;}
+  .card-cat{font-family:var(--font-mono); font-size:10.5px; color:var(--cyan); text-transform:uppercase; letter-spacing:.08em;}
+  .card-name{font-family:var(--font-display); font-size:14.5px; font-weight:600; line-height:1.3; min-height:38px;}
+  .card-specs{font-family:var(--font-mono); font-size:11.5px; color:var(--muted); line-height:1.6;}
+  .card-price-row{margin-top:auto; padding-top:8px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .card-price .now{font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--price);}
+  .card-price .old{display:block; font-size:11.5px; color:var(--muted); text-decoration:line-through;}
+  .add-btn{
+    background:transparent; border:1px solid var(--amber); color:var(--amber);
+    border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:6px;
+    white-space:nowrap;
+  }
+  .add-btn:hover{background:var(--amber); color:#1a1200;}
+  .add-btn svg{width:14px; height:14px;}
+
+  .strip{
+    margin:44px 24px; padding:26px; border-radius:16px; border:1px solid var(--line);
+    background:linear-gradient(120deg, rgba(232,163,61,0.12), rgba(79,209,197,0.08));
+    display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
+  }
+  .strip h3{font-family:var(--font-display); font-size:19px;}
+  .strip p{color:var(--muted); font-size:13.5px; margin-top:4px;}
+
+  footer{background:#0d0f14; border-top:1px solid var(--line); margin-top:40px;}
+  .footer-grid{ display:grid; grid-template-columns:1.4fr repeat(3,1fr); gap:30px; padding:48px 24px 30px; }
+  @media(max-width:760px){ .footer-grid{grid-template-columns:1fr 1fr;} }
+  .footer-grid h4{font-family:var(--font-display); font-size:13.5px; margin-bottom:14px; color:var(--text);}
+  .footer-grid ul{list-style:none;}
+  .footer-grid li{margin-bottom:9px;}
+  .footer-grid a{color:var(--muted); font-size:13.5px;}
+  .footer-grid a:hover{color:var(--cyan);}
+  .footer-brand p{color:var(--muted); font-size:13.5px; margin:14px 0 18px; max-width:280px;}
+  .socials{display:flex; gap:10px;}
+  .socials a{
+    width:34px; height:34px; border:1px solid var(--line); border-radius:8px; display:flex;
+    align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px;
+  }
+  .socials a:hover{border-color:var(--cyan); color:var(--cyan);}
+  .sub-footer{
+    border-top:1px solid var(--line); padding:16px 24px; display:flex; justify-content:space-between;
+    flex-wrap:wrap; gap:10px; color:var(--muted); font-size:12px; font-family:var(--font-mono);
+  }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(6,7,10,0.6); backdrop-filter:blur(2px);
+    z-index:90; opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .overlay.show{opacity:1; pointer-events:auto;}
+  .drawer{
+    position:fixed; top:0; right:0; height:100%; width:min(420px,92vw); background:var(--surface);
+    border-left:1px solid var(--line); z-index:95; transform:translateX(100%); transition:transform .25s ease;
+    display:flex; flex-direction:column;
+  }
+  .drawer.show{transform:translateX(0);}
+  .drawer-head{display:flex; justify-content:space-between; align-items:center; padding:18px 20px; border-bottom:1px solid var(--line);}
+  .drawer-head h3{font-family:var(--font-display); font-size:17px;}
+  .close-x{background:none; border:none; color:var(--muted); font-size:20px; line-height:1;}
+  .close-x:hover{color:var(--text);}
+  .drawer-body{flex:1; overflow-y:auto; padding:14px 20px;}
+  .cart-item{display:flex; gap:12px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .cart-item .thumb{
+    width:60px; height:60px; border-radius:8px; background:var(--surface-2); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; border:1px solid var(--line);
+  }
+  .cart-item .thumb svg{width:60%; height:60%; stroke:var(--muted); fill:none; stroke-width:1.4;}
+  .cart-item-info{flex:1; min-width:0;}
+  .cart-item-info .name{font-size:13.5px; font-weight:600; font-family:var(--font-display); margin-bottom:4px;}
+  .cart-item-info .price{font-family:var(--font-mono); color:var(--price); font-size:13px;}
+  .qty-row{display:flex; align-items:center; gap:8px; margin-top:8px;}
+  .qty-row button{
+    width:24px; height:24px; border-radius:6px; border:1px solid var(--line); background:var(--surface-2);
+    color:var(--text); font-size:14px; display:flex; align-items:center; justify-content:center;
+  }
+  .qty-row span{font-family:var(--font-mono); font-size:13px; min-width:18px; text-align:center;}
+  .remove-link{font-size:11.5px; color:var(--danger); margin-left:auto; font-family:var(--font-mono);}
+  .empty-cart{text-align:center; padding:60px 10px; color:var(--muted);}
+  .empty-cart svg{width:44px; height:44px; stroke:var(--muted); fill:none; stroke-width:1.2; margin-bottom:14px;}
+  .drawer-foot{border-top:1px solid var(--line); padding:18px 20px;}
+  .total-row{display:flex; justify-content:space-between; font-family:var(--font-mono); margin-bottom:14px; font-size:15px;}
+  .total-row b{color:var(--price); font-family:var(--font-display); font-size:19px;}
+
+  .modal{
+    position:fixed; top:0; left:0; width:100%; height:100%; z-index:98; display:none;
+    align-items:center; justify-content:center; padding:20px;
+  }
+  .modal.show{display:flex;}
+  .modal-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; width:100%; max-width:400px;
+    padding:26px; position:relative; max-height:90vh; overflow-y:auto;
+  }
+  .modal-card h3{font-family:var(--font-display); font-size:19px; margin-bottom:6px;}
+  .modal-card .sub{color:var(--muted); font-size:13px; margin-bottom:18px;}
+  .tabs{display:flex; gap:4px; background:var(--surface-2); border-radius:8px; padding:4px; margin-bottom:18px;}
+  .tabs button{flex:1; background:none; border:none; padding:8px; border-radius:6px; color:var(--muted); font-size:13px; font-weight:600;}
+  .tabs button.active{background:var(--amber); color:#1a1200;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:var(--font-mono);}
+  .field input, .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; color:var(--text); font-family:var(--font-body); font-size:14px;
+  }
+  .field input:focus, .field textarea:focus{border-color:var(--cyan);}
+  .modal .btn{width:100%; justify-content:center; margin-top:4px;}
+  .modal-close{position:absolute; top:14px; right:14px; background:none; border:none; color:var(--muted); font-size:20px;}
+  .account-view{display:flex; flex-direction:column; gap:4px;}
+  .account-avatar{
+    width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--cyan));
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700;
+    font-size:20px; color:#1a1200; margin-bottom:12px;
+  }
+  .form-msg{font-size:12.5px; margin-top:8px; font-family:var(--font-mono);}
+  .form-msg.error{color:var(--danger);}
+  .form-msg.ok{color:var(--price);}
+  .order-list{margin-top:18px; border-top:1px solid var(--line); padding-top:14px;}
+  .order-list h4{font-family:var(--font-display); font-size:13px; margin-bottom:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
+  .order-row{display:flex; justify-content:space-between; font-size:12.5px; padding:8px 0; border-bottom:1px dashed var(--line); font-family:var(--font-mono);}
+  .order-row .st{color:var(--cyan); text-transform:uppercase; font-size:10.5px;}
+
+  #toast-host{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .toast{
+    background:var(--surface); border:1px solid var(--cyan); color:var(--text); padding:11px 18px;
+    border-radius:8px; font-size:13.5px; box-shadow:0 6px 20px rgba(0,0,0,0.4);
+    display:flex; align-items:center; gap:8px; animation: rise .2s ease;
+  }
+  @keyframes rise{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important; scroll-behavior:auto !important;}
+  }
+
+  .no-results{grid-column:1/-1; text-align:center; padding:50px 20px; color:var(--muted); font-family:var(--font-mono); font-size:13.5px;}
+</style>
+</head>
+<body>
+
+<div class="apibar" id="apiBar">⚠ No se pudo conectar con el servidor. Mostrando catálogo de demostración: los pedidos y cuentas no se guardarán en la base de datos.</div>
+
+<div class="topbar">
+  <div class="wrap">
+    <div>📍 Cúcuta, Norte de Santander — <span>Envíos a todo el país</span></div>
+    <div><span>WhatsApp</span> 300 000 0000 · Compra 100% segura</div>
+  </div>
+</div>
+
+<header class="main">
+  <div class="wrap header-row">
+    <a href="#top" class="logo">
+      <span class="chip">BH</span>
+      <span>ByteHub<small>Tecnología</small></span>
+    </a>
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="Buscar computadores, portátiles, accesorios...">
+      <button id="searchBtn">Buscar</button>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="accountBtn">
+        <svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="label" id="accountLabel">Cuenta</span>
+      </button>
+      <button class="icon-btn" id="cartBtn">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="label">Carrito</span>
+        <span class="badge-count" id="cartCount" style="display:none;">0</span>
+      </button>
+    </div>
+  </div>
+  <nav class="categories">
+    <div class="wrap" id="catNav">
+      <button data-cat="todos" class="active">Todos</button>
+      <button data-cat="pc-gamer">PC Gamer</button>
+      <button data-cat="portatiles">Portátiles</button>
+      <button data-cat="monitores">Monitores</button>
+      <button data-cat="componentes">Componentes</button>
+      <button data-cat="perifericos">Periféricos</button>
+      <button data-cat="impresoras">Impresoras</button>
+      <button data-cat="accesorios">Accesorios</button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="eyebrow">Tienda de tecnología · Stock disponible</div>
+        <h1>Todo tu <em>setup</em>, en un solo lugar.</h1>
+        <p>Computadores, portátiles, monitores, componentes y accesorios originales. Asesoría técnica real y garantía directa de tienda.</p>
+        <div class="hero-ctas">
+          <a href="#catalogo" class="btn btn-primary">Ver catálogo</a>
+          <a href="#ofertas" class="btn btn-ghost">Ver ofertas</a>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <span class="discount-flag">-18%</span>
+        <div class="ticket-head"><span>Ficha técnica</span><span>#BH-0142</span></div>
+        <div class="spec-line"><span>Equipo</span><span>PC Gamer Ryzen 5 / RTX 4060</span></div>
+        <div class="spec-line"><span>RAM</span><span>16 GB DDR5</span></div>
+        <div class="spec-line"><span>Almacenamiento</span><span>1 TB NVMe</span></div>
+        <div class="spec-line"><span>Garantía</span><span>12 meses</span></div>
+        <div class="price-tag">
+          <span class="now">$4.290.000</span>
+          <span class="old">$5.250.000</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="tag">Explora</span><h2>Categorías principales</h2></div>
+      </div>
+      <div class="cat-grid" id="categoryGrid"></div>
+    </div>
+  </section>
+
+  <section class="section" id="catalogo">
+    <div class="wrap">
+      <div class="section-head">
+        <div><span class="tag" id="ofertas">Catálogo</span><h2 id="gridTitle">Todos los productos</h2><p id="gridCount"></p></div>
+      </div>
+      <div class="chip-row" id="chipRow"></div>
+      <div class="prod-grid" id="productGrid">
+        <div class="no-results">Cargando catálogo...</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="strip">
+      <div>
+        <h3>¿Necesitas un repuesto específico o armar un PC a la medida?</h3>
+        <p>Escríbenos por WhatsApp y te asesoramos sin costo.</p>
+      </div>
+      <a href="#" class="btn btn-primary">Hablar con un asesor</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <a href="#top" class="logo"><span class="chip">BH</span><span>ByteHub<small>Tecnología</small></span></a>
+      <p>Venta de computadores, portátiles, monitores, componentes y accesorios tecnológicos. Asesoría técnica y garantía directa.</p>
+      <div class="socials">
+        <a href="#" aria-label="Facebook">FB</a>
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="TikTok">TT</a>
+        <a href="#" aria-label="WhatsApp">WA</a>
+      </div>
+    </div>
+    <div>
+      <h4>Comprar</h4>
+      <ul>
+        <li><a href="#" data-cat="pc-gamer">PC Gamer</a></li>
+        <li><a href="#" data-cat="portatiles">Portátiles</a></li>
+        <li><a href="#" data-cat="monitores">Monitores</a></li>
+        <li><a href="#" data-cat="componentes">Componentes</a></li>
+        <li><a href="#" data-cat="accesorios">Accesorios</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Métodos de pago</a></li>
+        <li><a href="#">Zona de envíos</a></li>
+        <li><a href="#">Garantías</a></li>
+        <li><a href="#">Preguntas frecuentes</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <ul>
+        <li><a href="#">WhatsApp 300 000 0000</a></li>
+        <li><a href="#">ventas@bytehub.co</a></li>
+        <li><a href="#">Cúcuta, Norte de Santander</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="sub-footer">
+    <span>© 2026 ByteHub Tecnología. Todos los derechos reservados.</span>
+    <span>Sin pasarela de pagos integrada — coordinación por WhatsApp</span>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <h3>Tu carrito</h3>
+    <button class="close-x" id="closeCart">&times;</button>
+  </div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot">
+    <div class="total-row"><span>Total</span><b id="cartTotal">$0</b></div>
+    <button class="btn btn-primary" style="width:100%; justify-content:center;" id="checkoutBtn">Finalizar compra</button>
+  </div>
+</aside>
+
+<div class="modal" id="authModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeAuth">&times;</button>
+    <div id="authLoggedOut">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Iniciar sesión</button>
+        <button class="tab-btn" data-tab="register">Crear cuenta</button>
+      </div>
+
+      <form id="loginForm">
+        <h3>Bienvenido de nuevo</h3>
+        <p class="sub">Ingresa con tu correo y contraseña.</p>
+        <div class="field"><label>Correo electrónico</label><input type="email" id="loginEmail" required></div>
+        <div class="field"><label>Contraseña</label><input type="password" id="loginPassword" required></div>
+        <button class="btn btn-primary" type="submit">Entrar</button>
+        <div class="form-msg" id="loginMsg"></div>
+      </form>
+
+      <form id="registerForm" style="display:none;">
+        <h3>Crea tu cuenta</h3>
+        <p class="sub">Regístrate para agilizar tus compras y ver tu historial.</p>
+        <div class="field"><label>Nombre completo</label><input type="text" id="regName" required></div>
+        <div class="field"><label>Correo electrónico</label><input type="email" id="regEmail" required></div>
+        <div class="field"><label>Teléfono</label><input type="tel" id="regPhone"></div>
+        <div class="field"><label>Contraseña</label><input type="password" id="regPassword" minlength="4" required></div>
+        <button class="btn btn-primary" type="submit">Registrarme</button>
+        <div class="form-msg" id="registerMsg"></div>
+      </form>
+    </div>
+
+    <div id="authLoggedIn" style="display:none;">
+      <div class="account-view">
+        <div class="account-avatar" id="avatarInitial">A</div>
+        <h3 id="accountName">—</h3>
+        <p class="sub" id="accountEmail">—</p>
+      </div>
+      <button class="btn btn-ghost" style="width:100%; justify-content:center; margin-top:10px;" id="logoutBtn">Cerrar sesión</button>
+      <div class="order-list" id="orderList" style="display:none;">
+        <h4>Tus pedidos</h4>
+        <div id="orderRows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="checkoutModal">
+  <div class="modal-card">
+    <button class="modal-close" id="closeCheckout">&times;</button>
+    <h3>Confirmar pedido</h3>
+    <p class="sub">Diligencia tus datos de entrega. Te contactaremos por WhatsApp para coordinar el pago.</p>
+    <form id="checkoutForm">
+      <div class="field"><label>Nombre completo</label><input type="text" id="ckName" required></div>
+      <div class="field"><label>Teléfono / WhatsApp</label><input type="tel" id="ckPhone" required></div>
+      <div class="field"><label>Dirección de entrega</label><input type="text" id="ckAddress" required></div>
+      <div class="field"><label>Notas (opcional)</label><textarea id="ckNotes" rows="2"></textarea></div>
+      <button class="btn btn-primary" type="submit" id="ckSubmitBtn">Enviar pedido</button>
+      <div class="form-msg" id="checkoutMsg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-host"></div>
+
+<script>
+/* ============ CONFIGURACIÓN DE LA API ============ */
+// Cambia esta URL por la de tu backend cuando lo despliegues (por ejemplo en Render):
+// const API_BASE = "https://bytehub-backend.onrender.com/api";
+const API_BASE = "http://localhost:4000/api";
+
+let apiAvailable = true; // se pone en false si no se puede contactar al backend
+
+/* ============ ICONS ============ */
+const ICONS = {
+  tower: `<path d="M6 3h8l4 5v11a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V3z"/><path d="M9 8h6M9 12h6M9 16h2"/>`,
+  laptop: `<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M2 20h20"/>`,
+  monitor: `<rect x="3" y="4" width="18" height="12" rx="1"/><path d="M8 20h8M12 16v4"/>`,
+  cpu: `<rect x="6" y="6" width="12" height="12" rx="1"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/>`,
+  keyboard: `<rect x="2" y="6" width="20" height="12" rx="1"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/>`,
+  mouse: `<rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 3v6"/>`,
+  headset: `<path d="M3 14v-2a9 9 0 0 1 18 0v2"/><rect x="2" y="14" width="5" height="7" rx="2"/><rect x="17" y="14" width="5" height="7" rx="2"/>`,
+  printer: `<path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="8" rx="1"/><rect x="7" y="14" width="10" height="7"/>`,
+  ram: `<rect x="3" y="8" width="18" height="8" rx="1"/><path d="M6 8v-2M9 8v-2M12 8v-2M15 8v-2M18 8v-2"/>`,
+  cam: `<rect x="3" y="7" width="13" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3"/>`,
+  ups: `<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M13 6l-4 6h4l-1 6 5-8h-4z"/>`,
+  disk: `<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/>`,
+  cart: `<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>`
+};
+function svg(name, cls=""){ return `<svg class="${cls}" viewBox="0 0 24 24">${ICONS[name]||ICONS.tower}</svg>`; }
+
+const CATEGORIES = [
+  {id:"pc-gamer", name:"PC Gamer", icon:"tower", desc:"Equipos de escritorio"},
+  {id:"portatiles", name:"Portátiles", icon:"laptop", desc:"Para trabajo y gaming"},
+  {id:"monitores", name:"Monitores", icon:"monitor", desc:"FHD, 2K y alta tasa"},
+  {id:"componentes", name:"Componentes", icon:"cpu", desc:"Procesadores, RAM, SSD"},
+  {id:"perifericos", name:"Periféricos", icon:"keyboard", desc:"Teclado, mouse, audio"},
+  {id:"impresoras", name:"Impresoras", icon:"printer", desc:"Tinta continua y multifunción"},
+  {id:"accesorios", name:"Accesorios", icon:"cam", desc:"Cámaras, UPS y más"},
+];
+
+// Catálogo de respaldo: se usa SOLO si el backend no responde, para que la vitrina
+// nunca se vea vacía. En ese modo, los pedidos y cuentas no se guardan en base de datos.
+const FALLBACK_PRODUCTS = [
+  {id:"p1", category:"pc-gamer", name:"PC Gamer Ryzen 5 5600G / 16GB / 512GB SSD", price:2690000, oldPrice:3150000, icon:"tower", specs:["Ryzen 5 5600G","16GB DDR4","512GB NVMe"], badge:"oferta"},
+  {id:"p2", category:"pc-gamer", name:"PC Gamer Ryzen 7 8700F + RTX 4060", price:5990000, oldPrice:6750000, icon:"tower", specs:["Ryzen 7 8700F","RTX 4060 8GB","16GB DDR5 / 1TB"], badge:"oferta"},
+  {id:"p5", category:"portatiles", name:"Portátil ASUS Vivobook 15 Ryzen 5 / 16GB", price:2199000, oldPrice:2750000, icon:"laptop", specs:["Ryzen 5 5500U","16GB RAM","512GB SSD"], badge:"oferta"},
+  {id:"p9", category:"monitores", name:"Monitor Gamer ASUS TUF 24\\\" 144Hz IPS", price:439000, oldPrice:750000, icon:"monitor", specs:["24\\\" Full HD","144Hz","1ms"], badge:"oferta"},
+  {id:"p13", category:"componentes", name:"Tarjeta de Video RTX 4060 8GB", price:1790000, icon:"cpu", specs:["8GB GDDR6","1x HDMI / 3x DP","PCIe 4.0"], badge:"nuevo"},
+  {id:"p18", category:"perifericos", name:"Teclado Mecánico RGB 60%", price:149900, icon:"keyboard", specs:["Switches red","RGB","Compacto 60%"]},
+  {id:"p21", category:"impresoras", name:"Impresora EcoTank Multifuncional WiFi", price:789900, oldPrice:1116000, icon:"printer", specs:["Tinta continua","WiFi","Escáner"], badge:"oferta"},
+  {id:"p23", category:"accesorios", name:"Cámara Web 1080P Full HD", price:129900, oldPrice:185990, icon:"cam", specs:["1080P","Micrófono integrado","USB Plug&Play"], badge:"oferta"},
+];
+
+/* ============ ESTADO ============ */
+const LS_CART = "bh_cart";
+const LS_TOKEN = "bh_token";
+const LS_USER = "bh_user";
+
+let PRODUCTS = [];
+let cart = JSON.parse(localStorage.getItem(LS_CART) || "[]");
+let currentCat = "todos";
+let searchTerm = "";
+
+function saveCart(){ localStorage.setItem(LS_CART, JSON.stringify(cart)); renderCartBadge(); }
+function getToken(){ return localStorage.getItem(LS_TOKEN); }
+function getUser(){ return JSON.parse(localStorage.getItem(LS_USER) || "null"); }
+function setSession(token, user){
+  localStorage.setItem(LS_TOKEN, token);
+  localStorage.setItem(LS_USER, JSON.stringify(user));
+}
+function clearSession(){
+  localStorage.removeItem(LS_TOKEN);
+  localStorage.removeItem(LS_USER);
+}
+function authHeaders(){
+  const token = getToken();
+  return token ? { Authorization: "Bearer " + token } : {};
+}
+function money(n){ return "$" + Number(n).toLocaleString("es-CO"); }
+
+/* ============ TOAST ============ */
+function toast(msg){
+  const host = document.getElementById("toast-host");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(()=>{ el.remove(); }, 2600);
+}
+
+/* ============ CARGA DE PRODUCTOS DESDE LA API ============ */
+async function loadProducts(){
+  try{
+    const res = await fetch(`${API_BASE}/products`);
+    if(!res.ok) throw new Error("respuesta no ok");
+    const data = await res.json();
+    PRODUCTS = data.products.map(p => ({
+      id: p._id,
+      category: p.category,
+      name: p.name,
+      price: p.price,
+      oldPrice: p.oldPrice,
+      icon: p.icon,
+      specs: p.specs || [],
+      badge: p.badge,
+    }));
+    apiAvailable = true;
+  }catch(err){
+    console.warn("No se pudo conectar con el backend, usando catálogo de respaldo.", err);
+    PRODUCTS = FALLBACK_PRODUCTS;
+    apiAvailable = false;
+    document.getElementById("apiBar").classList.add("show");
+  }
+  renderProducts();
+}
+
+/* ============ RENDER: CATEGORÍAS ============ */
+function renderCategoryGrid(){
+  const el = document.getElementById("categoryGrid");
+  el.innerHTML = CATEGORIES.map(c => `
+    <button class="cat-card" data-cat="${c.id}" style="text-align:left;">
+      ${svg(c.icon)}
+      <b>${c.name}</b>
+      <span>${c.desc}</span>
+    </button>
+  `).join("");
+}
+
+function renderChips(){
+  const el = document.getElementById("chipRow");
+  const chips = [{id:"todos", name:"Todos"}, ...CATEGORIES.map(c=>({id:c.id, name:c.name}))];
+  el.innerHTML = chips.map(c => `<button class="chip ${c.id===currentCat?'active':''}" data-cat="${c.id}">${c.name}</button>`).join("");
+}
+
+/* ============ RENDER: PRODUCTOS ============ */
+function renderProducts(){
+  const el = document.getElementById("productGrid");
+  let list = PRODUCTS.filter(p => currentCat === "todos" || p.category === currentCat);
+  if(searchTerm.trim()){
+    const t = searchTerm.toLowerCase();
+    list = list.filter(p => p.name.toLowerCase().includes(t) || p.category.includes(t));
+  }
+  document.getElementById("gridCount").textContent = list.length + " producto(s) encontrados";
+  document.getElementById("gridTitle").textContent = currentCat === "todos"
+    ? "Todos los productos"
+    : (CATEGORIES.find(c=>c.id===currentCat)?.name || "Productos");
+
+  if(list.length === 0){
+    el.innerHTML = `<div class="no-results">No encontramos productos con ese criterio. Prueba con otra búsqueda o categoría.</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(p => `
+    <div class="card">
+      <div class="card-art">
+        ${p.badge ? `<span class="flag ${p.badge}">${p.badge==='oferta'?'OFERTA':'NUEVO'}</span>` : ""}
+        ${svg(p.icon)}
+      </div>
+      <div class="card-body">
+        <span class="card-cat">${CATEGORIES.find(c=>c.id===p.category)?.name || p.category}</span>
+        <div class="card-name">${p.name}</div>
+        <div class="card-specs">${p.specs.map(s=>"· "+s).join("<br>")}</div>
+        <div class="card-price-row">
+          <div class="card-price">
+            <span class="now">${money(p.price)}</span>
+            ${p.oldPrice ? `<span class="old">${money(p.oldPrice)}</span>` : ""}
+          </div>
+          <button class="add-btn" data-add="${p.id}">${svg("cart")} Agregar</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ============ CARRITO ============ */
+function addToCart(id){
+  const item = cart.find(i => i.id === id);
+  if(item){ item.qty += 1; } else { cart.push({id, qty:1}); }
+  saveCart();
+  const p = PRODUCTS.find(p=>p.id===id);
+  toast(`"${p.name}" agregado al carrito`);
+}
+function changeQty(id, delta){
+  const item = cart.find(i => i.id === id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0){ cart = cart.filter(i => i.id !== id); }
+  saveCart();
+  renderCart();
+}
+function removeFromCart(id){
+  cart = cart.filter(i => i.id !== id);
+  saveCart();
+  renderCart();
+}
+function cartTotal(){
+  return cart.reduce((sum,i) => {
+    const p = PRODUCTS.find(p=>p.id===i.id);
+    return sum + (p ? p.price * i.qty : 0);
+  }, 0);
+}
+function renderCartBadge(){
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  const badge = document.getElementById("cartCount");
+  if(count > 0){ badge.style.display = "flex"; badge.textContent = count; }
+  else { badge.style.display = "none"; }
+}
+function renderCart(){
+  const body = document.getElementById("cartBody");
+  const foot = document.getElementById("cartFoot");
+  if(cart.length === 0){
+    body.innerHTML = `<div class="empty-cart">${svg("cart")}<p>Tu carrito está vacío.<br>Explora el catálogo y agrega productos.</p></div>`;
+    foot.style.display = "none";
+    return;
+  }
+  foot.style.display = "block";
+  body.innerHTML = cart.map(i => {
+    const p = PRODUCTS.find(p=>p.id===i.id);
+    if(!p) return "";
+    return `
+      <div class="cart-item">
+        <div class="thumb">${svg(p.icon)}</div>
+        <div class="cart-item-info">
+          <div class="name">${p.name}</div>
+          <div class="price">${money(p.price)}</div>
+          <div class="qty-row">
+            <button data-qty-minus="${p.id}">−</button>
+            <span>${i.qty}</span>
+            <button data-qty-plus="${p.id}">+</button>
+            <a href="#" class="remove-link" data-remove="${p.id}">Quitar</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+  document.getElementById("cartTotal").textContent = money(cartTotal());
+}
+
+/* ============ AUTENTICACIÓN (contra la API real) ============ */
+async function renderAuth(){
+  const user = getUser();
+  const loggedOut = document.getElementById("authLoggedOut");
+  const loggedIn = document.getElementById("authLoggedIn");
+  const accountLabel = document.getElementById("accountLabel");
+  const orderList = document.getElementById("orderList");
+
+  if(user && getToken()){
+    loggedOut.style.display = "none";
+    loggedIn.style.display = "block";
+    document.getElementById("accountName").textContent = user.name;
+    document.getElementById("accountEmail").textContent = user.email;
+    document.getElementById("avatarInitial").textContent = user.name.charAt(0).toUpperCase();
+    accountLabel.textContent = user.name.split(" ")[0];
+    await loadMyOrders();
+    return;
+  }
+  loggedOut.style.display = "block";
+  loggedIn.style.display = "none";
+  orderList.style.display = "none";
+  accountLabel.textContent = "Cuenta";
+}
+
+async function loadMyOrders(){
+  const orderList = document.getElementById("orderList");
+  const rows = document.getElementById("orderRows");
+  if(!apiAvailable){ orderList.style.display = "none"; return; }
+  try{
+    const res = await fetch(`${API_BASE}/orders/mine`, { headers: authHeaders() });
+    if(!res.ok){ orderList.style.display = "none"; return; }
+    const data = await res.json();
+    if(!data.orders || data.orders.length === 0){ orderList.style.display = "none"; return; }
+    orderList.style.display = "block";
+    rows.innerHTML = data.orders.map(o => `
+      <div class="order-row">
+        <span>${new Date(o.createdAt).toLocaleDateString("es-CO")} · ${money(o.total)}</span>
+        <span class="st">${o.status}</span>
+      </div>
+    `).join("");
+  }catch(err){
+    orderList.style.display = "none";
+  }
+}
+
+/* ============ EVENTOS: CATEGORÍA / BÚSQUEDA ============ */
+document.getElementById("catNav").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-cat]");
+  if(!btn) return;
+  currentCat = btn.dataset.cat;
+  document.querySelectorAll("#catNav button").forEach(b=>b.classList.toggle("active", b===btn));
+  renderChips(); renderProducts();
+  document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});
+});
+document.getElementById("categoryGrid").addEventListener("click", e => {
+  const btn = e.target.closest("[data-cat]");
+  if(!btn) return;
+  currentCat = btn.dataset.cat;
+  document.querySelectorAll("#catNav button").forEach(b=>b.classList.toggle("active", b.dataset.cat===currentCat));
+  renderChips(); renderProducts();
+  document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});
+});
+document.getElementById("chipRow").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-cat]");
+  if(!btn) return;
+  currentCat = btn.dataset.cat;
+  document.querySelectorAll("#catNav button").forEach(b=>b.classList.toggle("active", b.dataset.cat===currentCat));
+  renderChips(); renderProducts();
+});
+document.querySelectorAll(".footer-grid a[data-cat]").forEach(a=>{
+  a.addEventListener("click", e=>{
+    e.preventDefault();
+    currentCat = a.dataset.cat;
+    document.querySelectorAll("#catNav button").forEach(b=>b.classList.toggle("active", b.dataset.cat===currentCat));
+    renderChips(); renderProducts();
+    document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});
+  });
+});
+function doSearch(){
+  searchTerm = document.getElementById("searchInput").value;
+  renderProducts();
+  document.getElementById("catalogo").scrollIntoView({behavior:"smooth"});
+}
+document.getElementById("searchBtn").addEventListener("click", doSearch);
+document.getElementById("searchInput").addEventListener("keydown", e => { if(e.key === "Enter") doSearch(); });
+
+/* ============ EVENTOS: AGREGAR AL CARRITO ============ */
+document.getElementById("productGrid").addEventListener("click", e => {
+  const btn = e.target.closest("[data-add]");
+  if(!btn) return;
+  addToCart(btn.dataset.add);
+});
+
+/* ============ EVENTOS: CARRITO ============ */
+const overlay = document.getElementById("overlay");
+const cartDrawer = document.getElementById("cartDrawer");
+function openCart(){ renderCart(); cartDrawer.classList.add("show"); overlay.classList.add("show"); }
+function closeCartFn(){ cartDrawer.classList.remove("show"); overlay.classList.remove("show"); }
+document.getElementById("cartBtn").addEventListener("click", openCart);
+document.getElementById("closeCart").addEventListener("click", closeCartFn);
+overlay.addEventListener("click", () => { closeCartFn(); closeAuthFn(); closeCheckoutFn(); });
+
+document.getElementById("cartBody").addEventListener("click", e => {
+  const plus = e.target.closest("[data-qty-plus]");
+  const minus = e.target.closest("[data-qty-minus]");
+  const rem = e.target.closest("[data-remove]");
+  if(plus) changeQty(plus.dataset.qtyPlus, 1);
+  if(minus) changeQty(minus.dataset.qtyMinus, -1);
+  if(rem){ e.preventDefault(); removeFromCart(rem.dataset.remove); }
+});
+
+/* ============ EVENTOS: AUTENTICACIÓN ============ */
+const authModal = document.getElementById("authModal");
+function openAuth(){ renderAuth(); authModal.classList.add("show"); overlay.classList.add("show"); }
+function closeAuthFn(){ authModal.classList.remove("show"); overlay.classList.remove("show"); }
+document.getElementById("accountBtn").addEventListener("click", openAuth);
+document.getElementById("closeAuth").addEventListener("click", closeAuthFn);
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    const tab = btn.dataset.tab;
+    document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
+    document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+  });
+});
+
+document.getElementById("registerForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("registerMsg");
+  if(!apiAvailable){
+    msg.textContent = "No hay conexión con el servidor. Verifica que el backend esté corriendo.";
+    msg.className = "form-msg error";
+    return;
+  }
+  const name = document.getElementById("regName").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const phone = document.getElementById("regPhone").value.trim();
+  const password = document.getElementById("regPassword").value;
+
+  try{
+    const res = await fetch(`${API_BASE}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, phone, password }),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      msg.textContent = data.error || "No se pudo crear la cuenta.";
+      msg.className = "form-msg error";
+      return;
+    }
+    setSession(data.token, data.user);
+    msg.textContent = "¡Cuenta creada con éxito!";
+    msg.className = "form-msg ok";
+    toast(`¡Bienvenido/a, ${data.user.name.split(" ")[0]}!`);
+    setTimeout(async ()=>{ await renderAuth(); closeAuthFn(); e.target.reset(); msg.textContent=""; }, 700);
+  }catch(err){
+    msg.textContent = "No se pudo conectar con el servidor.";
+    msg.className = "form-msg error";
+  }
+});
+
+document.getElementById("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("loginMsg");
+  if(!apiAvailable){
+    msg.textContent = "No hay conexión con el servidor. Verifica que el backend esté corriendo.";
+    msg.className = "form-msg error";
+    return;
+  }
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  try{
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      msg.textContent = data.error || "Correo o contraseña incorrectos.";
+      msg.className = "form-msg error";
+      return;
+    }
+    setSession(data.token, data.user);
+    msg.textContent = "¡Sesión iniciada!";
+    msg.className = "form-msg ok";
+    toast(`Hola de nuevo, ${data.user.name.split(" ")[0]}!`);
+    setTimeout(async ()=>{ await renderAuth(); closeAuthFn(); e.target.reset(); msg.textContent=""; }, 500);
+  }catch(err){
+    msg.textContent = "No se pudo conectar con el servidor.";
+    msg.className = "form-msg error";
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  clearSession();
+  renderAuth();
+  toast("Sesión cerrada.");
+});
+
+/* ============ EVENTOS: CHECKOUT ============ */
+const checkoutModal = document.getElementById("checkoutModal");
+function openCheckout(){
+  if(cart.length === 0){ toast("Tu carrito está vacío."); return; }
+  closeCartFn();
+  checkoutModal.classList.add("show");
+  overlay.classList.add("show");
+}
+function closeCheckoutFn(){ checkoutModal.classList.remove("show"); overlay.classList.remove("show"); }
+document.getElementById("checkoutBtn").addEventListener("click", openCheckout);
+document.getElementById("closeCheckout").addEventListener("click", closeCheckoutFn);
+
+document.getElementById("checkoutForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("checkoutMsg");
+  const submitBtn = document.getElementById("ckSubmitBtn");
+  const customer = {
+    name: document.getElementById("ckName").value.trim(),
+    phone: document.getElementById("ckPhone").value.trim(),
+    address: document.getElementById("ckAddress").value.trim(),
+    notes: document.getElementById("ckNotes").value.trim(),
+  };
+
+  if(!apiAvailable){
+    // Modo demostración: no hay backend disponible, simulamos el pedido localmente.
+    msg.textContent = `Pedido simulado por ${money(cartTotal())} (modo demostración, sin backend conectado).`;
+    msg.className = "form-msg ok";
+    toast("Pedido simulado con éxito (modo demostración).");
+    cart = [];
+    saveCart();
+    setTimeout(()=>{ closeCheckoutFn(); e.target.reset(); msg.textContent = ""; }, 1800);
+    return;
+  }
+
+  const items = cart.map(i => ({ productId: i.id, qty: i.qty }));
+  submitBtn.disabled = true;
+
+  try{
+    const res = await fetch(`${API_BASE}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify({ items, customer }),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      msg.textContent = data.error || "No se pudo registrar el pedido.";
+      msg.className = "form-msg error";
+      submitBtn.disabled = false;
+      return;
+    }
+    msg.textContent = `Pedido #${data.order._id.slice(-6).toUpperCase()} recibido por ${money(data.order.total)}. Te contactaremos por WhatsApp.`;
+    msg.className = "form-msg ok";
+    toast("¡Pedido enviado con éxito!");
+    cart = [];
+    saveCart();
+    setTimeout(()=>{
+      closeCheckoutFn();
+      e.target.reset();
+      msg.textContent = "";
+      submitBtn.disabled = false;
+    }, 2000);
+  }catch(err){
+    msg.textContent = "No se pudo conectar con el servidor.";
+    msg.className = "form-msg error";
+    submitBtn.disabled = false;
+  }
+});
+
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape"){ closeCartFn(); closeAuthFn(); closeCheckoutFn(); }
+});
+
+/* ============ INICIALIZACIÓN ============ */
+async function init(){
+  renderCategoryGrid();
+  renderChips();
+  renderCartBadge();
+  await loadProducts();
+  await renderAuth();
+}
+init();
+</script>
+</body>
+</html>
