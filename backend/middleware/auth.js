@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 // Exige un token valido. Si no hay token o es invalido, responde 401.
 function requireAuth(req, res, next) {
@@ -35,4 +36,19 @@ function optionalAuth(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, optionalAuth };
+// Exige un token valido Y que el usuario tenga isAdmin = true.
+async function requireAdmin(req, res, next) {
+  requireAuth(req, res, async () => {
+    try {
+      const user = await User.findById(req.userId);
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ error: "No tienes permisos de administrador." });
+      }
+      next();
+    } catch (err) {
+      return res.status(500).json({ error: "Error del servidor al verificar permisos." });
+    }
+  });
+}
+
+module.exports = { requireAuth, optionalAuth, requireAdmin };

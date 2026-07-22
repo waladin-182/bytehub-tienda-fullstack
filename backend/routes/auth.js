@@ -11,7 +11,17 @@ function signToken(user) {
 }
 
 function publicUser(user) {
-  return { id: user._id, name: user.name, email: user.email, phone: user.phone };
+  return { id: user._id, name: user.name, email: user.email, phone: user.phone, isAdmin: user.isAdmin };
+}
+
+// Lee la lista de correos administradores desde la variable de entorno ADMIN_EMAILS
+// (separados por comas) y determina si un correo dado debe ser admin.
+function shouldBeAdmin(email) {
+  const list = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return list.includes(email.toLowerCase().trim());
 }
 
 // POST /api/auth/register
@@ -32,11 +42,13 @@ router.post("/register", async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    const cleanEmail = email.toLowerCase().trim();
     const user = await User.create({
       name: name.trim(),
-      email: email.toLowerCase().trim(),
+      email: cleanEmail,
       phone: (phone || "").trim(),
       passwordHash,
+      isAdmin: shouldBeAdmin(cleanEmail),
     });
 
     const token = signToken(user);
@@ -63,6 +75,13 @@ router.post("/login", async (req, res) => {
     const match = await bcrypt.compare(password, user.passwordHash);
     if (!match) {
       return res.status(401).json({ error: "Correo o contraseña incorrectos." });
+    }
+
+    // Mantiene sincronizado el rol de admin con la lista ADMIN_EMAILS en cada login.
+    const shouldAdmin = shouldBeAdmin(user.email);
+    if (user.isAdmin !== shouldAdmin) {
+      user.isAdmin = shouldAdmin;
+      await user.save();
     }
 
     const token = signToken(user);
