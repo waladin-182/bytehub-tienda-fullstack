@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administración — ByteHub Tecnología</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#12151b; --surface:#1a1f29; --surface-2:#212836; --line:#2b3242;
+    --amber:#e8a33d; --cyan:#4fd1c5; --text:#edeff3; --muted:#8b95a7;
+    --price:#7fd99a; --danger:#e8544d;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html, body{ overflow-x:hidden; max-width:100%; }
+  body{ background:var(--bg); color:var(--text); font-family:var(--font-body); line-height:1.5; }
+  a{color:inherit;} button{font-family:inherit; cursor:pointer;}
+  .wrap{max-width:1100px; margin:0 auto; padding:0 24px;}
+
+  header{ border-bottom:1px solid var(--line); padding:16px 0; background:#0d0f14; }
+  .header-inner{display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;}
+  .logo{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:19px;}
+  .logo .chip{ width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--amber),var(--cyan)); display:flex; align-items:center; justify-content:center; color:#0d0f14; font-family:var(--font-mono); font-weight:600; font-size:12.5px;}
+  .logo small{display:block; font-family:var(--font-mono); font-size:9.5px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase;}
+  .header-right{display:flex; align-items:center; gap:14px; font-size:13.5px; color:var(--muted);}
+  .header-right a{color:var(--cyan);}
+
+  main{padding:36px 0 60px;}
+  h1{font-family:var(--font-display); font-size:24px; margin-bottom:6px;}
+  .subtitle{color:var(--muted); font-size:13.5px; margin-bottom:26px;}
+
+  .btn{
+    display:inline-flex; align-items:center; gap:8px; border-radius:8px; font-weight:600; font-size:13.5px;
+    padding:11px 18px; border:1px solid transparent; transition:.15s; background:none;
+  }
+  .btn-primary{background:var(--amber); color:#1a1200;}
+  .btn-primary:hover{background:#f3b458;}
+  .btn-primary:disabled{opacity:.5; cursor:not-allowed;}
+  .btn-ghost{border-color:var(--line); color:var(--text);}
+  .btn-ghost:hover{border-color:var(--cyan); color:var(--cyan);}
+  .btn-danger{border-color:var(--danger); color:var(--danger);}
+  .btn-danger:hover{background:var(--danger); color:#fff;}
+  .btn-sm{padding:7px 12px; font-size:12px;}
+
+  /* LOGIN */
+  .login-card{
+    max-width:380px; margin:60px auto; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:28px;
+  }
+  .login-card h2{font-family:var(--font-display); font-size:19px; margin-bottom:6px;}
+  .login-card p{color:var(--muted); font-size:13px; margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:var(--font-mono);}
+  .field input, .field select, .field textarea{
+    width:100%; background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+    padding:10px 12px; color:var(--text); font-family:var(--font-body); font-size:14px;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{border-color:var(--cyan); outline:none;}
+  .form-msg{font-size:12.5px; margin-top:10px; font-family:var(--font-mono);}
+  .form-msg.error{color:var(--danger);}
+  .form-msg.ok{color:var(--price);}
+  .denied{max-width:420px; margin:60px auto; text-align:center; color:var(--muted);}
+  .denied h2{color:var(--danger); font-family:var(--font-display); margin-bottom:10px;}
+
+  /* TABLE */
+  .toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; gap:12px; flex-wrap:wrap;}
+  .search-mini{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:9px 12px;
+    color:var(--text); font-size:13.5px; min-width:220px;
+  }
+  .table-wrap{ background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; min-width:720px; }
+  th, td{ text-align:left; padding:12px 14px; font-size:13px; border-bottom:1px solid var(--line); }
+  th{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); background:var(--surface-2); }
+  tr:last-child td{border-bottom:none;}
+  td.name{font-family:var(--font-display); font-weight:600; max-width:260px;}
+  td.price{font-family:var(--font-mono); color:var(--price);}
+  td.price .old{display:block; color:var(--muted); text-decoration:line-through; font-size:11px;}
+  .pill{ display:inline-block; padding:3px 9px; border-radius:20px; font-size:10.5px; font-family:var(--font-mono); text-transform:uppercase; }
+  .pill.on{background:rgba(127,217,154,0.15); color:var(--price);}
+  .pill.off{background:rgba(232,84,77,0.15); color:var(--danger);}
+  .pill.badge-oferta{background:rgba(232,84,77,0.15); color:var(--danger);}
+  .pill.badge-nuevo{background:rgba(79,209,197,0.15); color:var(--cyan);}
+  .row-actions{display:flex; gap:8px;}
+  .empty-state{padding:50px 20px; text-align:center; color:var(--muted); font-family:var(--font-mono); font-size:13px;}
+
+  /* MODAL */
+  .overlay{ position:fixed; inset:0; background:rgba(6,7,10,0.65); z-index:90; display:none; align-items:center; justify-content:center; padding:20px; }
+  .overlay.show{display:flex;}
+  .modal-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; width:100%; max-width:520px;
+    padding:26px; max-height:90vh; overflow-y:auto; position:relative;
+  }
+  .modal-card h3{font-family:var(--font-display); font-size:18px; margin-bottom:18px;}
+  .modal-close{position:absolute; top:14px; right:14px; background:none; border:none; color:var(--muted); font-size:20px;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:0 14px;}
+  .checkbox-row{display:flex; align-items:center; gap:8px; margin-bottom:14px;}
+  .checkbox-row input{width:auto;}
+  .modal-actions{display:flex; gap:10px; margin-top:6px;}
+  .modal-actions .btn{flex:1; justify-content:center;}
+
+  #toast-host{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center;}
+  .toast{ background:var(--surface); border:1px solid var(--cyan); color:var(--text); padding:11px 18px; border-radius:8px; font-size:13.5px; box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+
+  @media(max-width:640px){ .grid-2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <a href="index.html" class="logo"><span class="chip">BH</span><span>ByteHub<small>Admin</small></span></a>
+    <div class="header-right" id="headerRight">
+      <a href="index.html">← Volver a la tienda</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- LOGIN -->
+  <div class="login-card" id="loginCard">
+    <h2>Acceso administrador</h2>
+    <p>Inicia sesión con tu cuenta de administrador para gestionar el catálogo.</p>
+    <form id="loginForm">
+      <div class="field"><label>Correo electrónico</label><input type="email" id="loginEmail" required></div>
+      <div class="field"><label>Contraseña</label><input type="password" id="loginPassword" required></div>
+      <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Entrar</button>
+      <div class="form-msg" id="loginMsg"></div>
+    </form>
+  </div>
+
+  <!-- SIN PERMISOS -->
+  <div class="denied" id="deniedCard" style="display:none;">
+    <h2>Acceso denegado</h2>
+    <p>Tu cuenta no tiene permisos de administrador. Si crees que esto es un error, agrega tu correo a la variable <code>ADMIN_EMAILS</code> en el backend y vuelve a iniciar sesión.</p>
+    <button class="btn btn-ghost" id="deniedLogout" style="margin-top:16px;">Cerrar sesión</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none;">
+    <h1>Catálogo de productos</h1>
+    <p class="subtitle">Agrega, edita o desactiva productos. Los cambios se reflejan de inmediato en la tienda.</p>
+
+    <div class="toolbar">
+      <input type="text" class="search-mini" id="adminSearch" placeholder="Buscar por nombre...">
+      <button class="btn btn-primary" id="newProductBtn">+ Nuevo producto</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Categoría</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Estado</th>
+            <th>Etiqueta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="productsBody">
+          <tr><td colspan="7" class="empty-state">Cargando productos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL: crear / editar producto -->
+<div class="overlay" id="overlay">
+  <div class="modal-card">
+    <button class="modal-close" id="closeModal">&times;</button>
+    <h3 id="modalTitle">Nuevo producto</h3>
+    <form id="productForm">
+      <input type="hidden" id="productId">
+      <div class="field"><label>Nombre</label><input type="text" id="fName" required></div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Categoría</label>
+          <select id="fCategory" required>
+            <option value="pc-gamer">PC Gamer</option>
+            <option value="portatiles">Portátiles</option>
+            <option value="monitores">Monitores</option>
+            <option value="componentes">Componentes</option>
+            <option value="perifericos">Periféricos</option>
+            <option value="impresoras">Impresoras</option>
+            <option value="accesorios">Accesorios</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Ícono</label>
+          <select id="fIcon">
+            <option value="tower">Torre / PC</option>
+            <option value="laptop">Portátil</option>
+            <option value="monitor">Monitor</option>
+            <option value="cpu">Procesador / Tarjeta</option>
+            <option value="ram">Memoria RAM</option>
+            <option value="disk">Disco / SSD</option>
+            <option value="keyboard">Teclado</option>
+            <option value="mouse">Mouse</option>
+            <option value="headset">Diadema</option>
+            <option value="printer">Impresora</option>
+            <option value="cam">Cámara</option>
+            <option value="ups">UPS</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Precio (COP)</label><input type="number" id="fPrice" min="1" required></div>
+        <div class="field"><label>Precio anterior (opcional)</label><input type="number" id="fOldPrice" min="1"></div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Etiqueta</label>
+          <select id="fBadge">
+            <option value="">Ninguna</option>
+            <option value="oferta">Oferta</option>
+            <option value="nuevo">Nuevo</option>
+          </select>
+        </div>
+        <div class="field"><label>Stock</label><input type="number" id="fStock" min="0" value="10"></div>
+      </div>
+      <div class="field"><label>Especificaciones (separadas por coma)</label><textarea id="fSpecs" rows="2" placeholder="Ej: Ryzen 5 5600G, 16GB DDR4, 512GB NVMe"></textarea></div>
+      <div class="checkbox-row"><input type="checkbox" id="fActive" checked><label for="fActive" style="margin:0;">Producto activo (visible en la tienda)</label></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="cancelModal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="saveBtn">Guardar</button>
+      </div>
+      <div class="form-msg" id="productMsg"></div>
+    </form>
+  </div>
+</div>
+
+<div id="toast-host"></div>
+
+<script>
+// Cambia esta URL por la de tu backend en producción, la misma que usas en index.html
+const API_BASE = "https://bytehub-tienda-fullstack.onrender.com";
+
+const LS_TOKEN = "bh_token";
+const LS_USER = "bh_user";
+function getToken(){ return localStorage.getItem(LS_TOKEN); }
+function getUser(){ return JSON.parse(localStorage.getItem(LS_USER) || "null"); }
+function setSession(token, user){ localStorage.setItem(LS_TOKEN, token); localStorage.setItem(LS_USER, JSON.stringify(user)); }
+function clearSession(){ localStorage.removeItem(LS_TOKEN); localStorage.removeItem(LS_USER); }
+function authHeaders(){ const t = getToken(); return t ? { Authorization: "Bearer " + t } : {}; }
+function money(n){ return "$" + Number(n).toLocaleString("es-CO"); }
+
+function toast(msg){
+  const host = document.getElementById("toast-host");
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  host.appendChild(el);
+  setTimeout(()=>el.remove(), 2600);
+}
+
+const CATEGORY_NAMES = {
+  "pc-gamer":"PC Gamer", "portatiles":"Portátiles", "monitores":"Monitores",
+  "componentes":"Componentes", "perifericos":"Periféricos", "impresoras":"Impresoras", "accesorios":"Accesorios"
+};
+
+let allProducts = [];
+
+/* ============ VISTAS ============ */
+function showView(view){
+  document.getElementById("loginCard").style.display = view === "login" ? "block" : "none";
+  document.getElementById("deniedCard").style.display = view === "denied" ? "block" : "none";
+  document.getElementById("dashboard").style.display = view === "dashboard" ? "block" : "none";
+}
+
+async function boot(){
+  const user = getUser();
+  const token = getToken();
+  if(!user || !token){ showView("login"); return; }
+  if(!user.isAdmin){ showView("denied"); return; }
+
+  document.getElementById("headerRight").innerHTML =
+    `<span>Hola, ${user.name.split(" ")[0]} 👋</span> · <a href="#" id="logoutLink">Cerrar sesión</a> · <a href="index.html">← Volver a la tienda</a>`;
+  document.getElementById("logoutLink").addEventListener("click", (e)=>{ e.preventDefault(); clearSession(); location.reload(); });
+
+  showView("dashboard");
+  await loadProducts();
+}
+
+document.getElementById("deniedLogout").addEventListener("click", () => { clearSession(); location.reload(); });
+
+/* ============ LOGIN ============ */
+document.getElementById("loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("loginMsg");
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  try{
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      msg.textContent = data.error || "Correo o contraseña incorrectos.";
+      msg.className = "form-msg error";
+      return;
+    }
+    setSession(data.token, data.user);
+    if(!data.user.isAdmin){
+      showView("denied");
+      return;
+    }
+    location.reload();
+  }catch(err){
+    msg.textContent = "No se pudo conectar con el servidor.";
+    msg.className = "form-msg error";
+  }
+});
+
+/* ============ CARGA Y RENDER DE PRODUCTOS ============ */
+async function loadProducts(){
+  const tbody = document.getElementById("productsBody");
+  try{
+    const res = await fetch(`${API_BASE}/products/admin/all`, { headers: authHeaders() });
+    if(res.status === 401 || res.status === 403){
+      clearSession();
+      showView("login");
+      return;
+    }
+    const data = await res.json();
+    allProducts = data.products || [];
+    renderTable();
+  }catch(err){
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No se pudo conectar con el servidor.</td></tr>`;
+  }
+}
+
+function renderTable(){
+  const tbody = document.getElementById("productsBody");
+  const term = document.getElementById("adminSearch").value.trim().toLowerCase();
+  const list = term ? allProducts.filter(p => p.name.toLowerCase().includes(term)) : allProducts;
+
+  if(list.length === 0){
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No hay productos que coincidan.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(p => `
+    <tr>
+      <td class="name">${p.name}</td>
+      <td>${CATEGORY_NAMES[p.category] || p.category}</td>
+      <td class="price">${money(p.price)}${p.oldPrice ? `<span class="old">${money(p.oldPrice)}</span>` : ""}</td>
+      <td>${p.stock ?? "-"}</td>
+      <td><span class="pill ${p.active ? "on" : "off"}">${p.active ? "Activo" : "Inactivo"}</span></td>
+      <td>${p.badge ? `<span class="pill badge-${p.badge}">${p.badge}</span>` : "—"}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm" data-edit="${p._id}">Editar</button>
+          <button class="btn btn-danger btn-sm" data-delete="${p._id}">Eliminar</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+document.getElementById("adminSearch").addEventListener("input", renderTable);
+
+document.getElementById("productsBody").addEventListener("click", e => {
+  const editBtn = e.target.closest("[data-edit]");
+  const delBtn = e.target.closest("[data-delete]");
+  if(editBtn) openModal(allProducts.find(p => p._id === editBtn.dataset.edit));
+  if(delBtn) deleteProduct(delBtn.dataset.delete);
+});
+
+/* ============ MODAL: CREAR / EDITAR ============ */
+const overlay = document.getElementById("overlay");
+function openModal(product){
+  document.getElementById("productMsg").textContent = "";
+  document.getElementById("productForm").reset();
+  if(product){
+    document.getElementById("modalTitle").textContent = "Editar producto";
+    document.getElementById("productId").value = product._id;
+    document.getElementById("fName").value = product.name;
+    document.getElementById("fCategory").value = product.category;
+    document.getElementById("fIcon").value = product.icon || "tower";
+    document.getElementById("fPrice").value = product.price;
+    document.getElementById("fOldPrice").value = product.oldPrice || "";
+    document.getElementById("fBadge").value = product.badge || "";
+    document.getElementById("fStock").value = product.stock ?? 10;
+    document.getElementById("fSpecs").value = (product.specs || []).join(", ");
+    document.getElementById("fActive").checked = !!product.active;
+  } else {
+    document.getElementById("modalTitle").textContent = "Nuevo producto";
+    document.getElementById("productId").value = "";
+    document.getElementById("fStock").value = 10;
+    document.getElementById("fActive").checked = true;
+  }
+  overlay.classList.add("show");
+}
+function closeModal(){ overlay.classList.remove("show"); }
+document.getElementById("newProductBtn").addEventListener("click", () => openModal(null));
+document.getElementById("closeModal").addEventListener("click", closeModal);
+document.getElementById("cancelModal").addEventListener("click", closeModal);
+overlay.addEventListener("click", e => { if(e.target === overlay) closeModal(); });
+
+document.getElementById("productForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("productMsg");
+  const saveBtn = document.getElementById("saveBtn");
+  const id = document.getElementById("productId").value;
+
+  const payload = {
+    name: document.getElementById("fName").value.trim(),
+    category: document.getElementById("fCategory").value,
+    icon: document.getElementById("fIcon").value,
+    price: Number(document.getElementById("fPrice").value),
+    oldPrice: document.getElementById("fOldPrice").value ? Number(document.getElementById("fOldPrice").value) : null,
+    badge: document.getElementById("fBadge").value || null,
+    stock: Number(document.getElementById("fStock").value),
+    specs: document.getElementById("fSpecs").value,
+    active: document.getElementById("fActive").checked,
+  };
+
+  saveBtn.disabled = true;
+  try{
+    const res = await fetch(`${API_BASE}/products${id ? "/" + id : ""}`, {
+      method: id ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders() },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if(!res.ok){
+      msg.textContent = data.error || "No se pudo guardar el producto.";
+      msg.className = "form-msg error";
+      saveBtn.disabled = false;
+      return;
+    }
+    toast(id ? "Producto actualizado." : "Producto creado.");
+    closeModal();
+    saveBtn.disabled = false;
+    await loadProducts();
+  }catch(err){
+    msg.textContent = "No se pudo conectar con el servidor.";
+    msg.className = "form-msg error";
+    saveBtn.disabled = false;
+  }
+});
+
+async function deleteProduct(id){
+  const product = allProducts.find(p => p._id === id);
+  if(!confirm(`¿Eliminar "${product?.name}"? Esta acción no se puede deshacer.`)) return;
+  try{
+    const res = await fetch(`${API_BASE}/products/${id}`, { method: "DELETE", headers: authHeaders() });
+    const data = await res.json();
+    if(!res.ok){ toast(data.error || "No se pudo eliminar."); return; }
+    toast("Producto eliminado.");
+    await loadProducts();
+  }catch(err){
+    toast("No se pudo conectar con el servidor.");
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
