@@ -10,9 +10,26 @@ const orderRoutes = require("./routes/orders");
 const app = express();
 
 app.use(express.json());
+// Lista de orígenes permitidos, separados por comas en FRONTEND_ORIGIN
+// (ej: "https://bytehub-tienda.onrender.com,http://127.0.0.1:5500").
+// Si no hay ninguno configurado, se permite cualquiera con "*".
+const allowedOrigins = (process.env.FRONTEND_ORIGIN || "*")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_ORIGIN || "*",
+    origin: function (origin, callback) {
+      // "origin" viene vacío/indefinido cuando la petición se hace desde un archivo
+      // abierto localmente (file://), o con herramientas como Postman/curl.
+      // Lo permitimos para poder probar el sitio en tu computador sin fricción.
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Origen no permitido por CORS: " + origin));
+    },
   })
 );
 
